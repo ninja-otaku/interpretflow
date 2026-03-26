@@ -1,15 +1,17 @@
 """Core InterpretableModel wrapper -- Phase 1 scaffold."""
 from __future__ import annotations
 
+from dataclasses import dataclass, field
+from typing import Any
+
 import numpy as np
 from scipy.optimize import minimize
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+
 
 @dataclass
 class ModelCard:
     training_data_description: str = ""
-    evaluation_metrics: Dict[str, float] = field(default_factory=dict)
+    evaluation_metrics: dict[str, float] = field(default_factory=dict)
     model_name: str = ""
     version: str = ""
 
@@ -62,7 +64,9 @@ class ModelCardGenerator:
 class CounterfactualEngine:
     model: Any
 
-    def find_counterfactual(self, input_data: np.ndarray, target_prediction: int, constraints: Dict[int, float]) -> np.ndarray:
+    def find_counterfactual(
+        self, input_data: np.ndarray, target_prediction: int, constraints: dict[int, float]
+    ) -> np.ndarray:
         def objective(delta):
             return np.sum(np.abs(delta))
 
@@ -70,7 +74,10 @@ class CounterfactualEngine:
             return self.model.predict(input_data + delta) - target_prediction
 
         cons = {'type': 'eq', 'fun': constraint}
-        bounds = [(None, None) if i not in constraints else (constraints[i], constraints[i]) for i in range(input_data.shape[0])]
+        bounds = [
+            (None, None) if i not in constraints else (constraints[i], constraints[i])
+            for i in range(input_data.shape[0])
+        ]
         
         result = minimize(objective, np.zeros_like(input_data), method='SLSQP', bounds=bounds, constraints=cons)
         return result.x
