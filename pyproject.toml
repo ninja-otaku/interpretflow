@@ -9,19 +9,19 @@ requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
 description = "Interpretability-first ML pipeline wrapper for regulated industries"
 readme = "README.md"
+dependencies = [
+    "scikit-learn",
+    "xgboost",
+    "shap",
+    "numpy",
+    "pandas",
+    "pydantic",
+    "jinja2",
+]
 
 [project.urls]
 Homepage = "https://github.com/ninja-otaku/interpretflow"
 Issues = "https://github.com/ninja-otaku/interpretflow/issues"
-
-[project.dependencies]
-scikit-learn = "*"
-xgboost = "*"
-shap = "*"
-numpy = "*"
-pandas = "*"
-pydantic = "*"
-jinja2 = "*"
 
 [project.optional-dependencies]
 full = [
