@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "interpretflow"
+version = "0.1.0"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+description = "Interpretability-first ML pipeline wrapper for regulated industries"
+readme = "README.md"
+
+[project.urls]
+Homepage = "https://github.com/ninja-otaku/interpretflow"
+Issues = "https://github.com/ninja-otaku/interpretflow/issues"
+
+[project.dependencies]
+scikit-learn = "*"
+xgboost = "*"
+shap = "*"
+numpy = "*"
+pandas = "*"
+pydantic = "*"
+jinja2 = "*"
+
+[project.optional-dependencies]
+full = [
+    "lime",
+    "alibi",
+    "captum",
+    "weasyprint",
+    "torch",
+]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+    "hypothesis",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/interpretflow"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP"]
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
