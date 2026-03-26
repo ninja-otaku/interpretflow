@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize  # type: ignore[import-untyped]
 
 
 @dataclass
@@ -19,19 +19,25 @@ class ModelCard:
 class ComplianceMapper:
     def check_compliance(self, model_card: ModelCard, regulation: str) -> bool:
         if regulation == "SR_11_7":
-            return (model_card.training_data_description and
-                    model_card.evaluation_metrics and
-                    model_card.model_name)
+            return bool(
+                model_card.training_data_description
+                and model_card.evaluation_metrics
+                and model_card.model_name
+            )
         elif regulation == "EU_AI_ACT_13":
-            return (model_card.training_data_description and
-                    model_card.evaluation_metrics and
-                    model_card.model_name and
-                    model_card.version)
+            return bool(
+                model_card.training_data_description
+                and model_card.evaluation_metrics
+                and model_card.model_name
+                and model_card.version
+            )
         elif regulation == "FINRA":
-            return (model_card.training_data_description and
-                    model_card.evaluation_metrics and
-                    model_card.model_name and
-                    model_card.evaluation_metrics.get("accuracy", 0) >= 0.7)
+            return bool(
+                model_card.training_data_description
+                and model_card.evaluation_metrics
+                and model_card.model_name
+                and model_card.evaluation_metrics.get("accuracy", 0) >= 0.7
+            )
         else:
             raise ValueError(f"Unknown regulation: {regulation}")
 
@@ -67,11 +73,11 @@ class CounterfactualEngine:
     def find_counterfactual(
         self, input_data: np.ndarray, target_prediction: int, constraints: dict[int, float]
     ) -> np.ndarray:
-        def objective(delta):
-            return np.sum(np.abs(delta))
+        def objective(delta: np.ndarray) -> float:
+            return float(np.sum(np.abs(delta)))
 
-        def constraint(delta):
-            return self.model.predict(input_data + delta) - target_prediction
+        def constraint(delta: np.ndarray) -> float:
+            return float(self.model.predict(input_data + delta) - target_prediction)
 
         cons = {'type': 'eq', 'fun': constraint}
         bounds = [
@@ -80,4 +86,4 @@ class CounterfactualEngine:
         ]
         
         result = minimize(objective, np.zeros_like(input_data), method='SLSQP', bounds=bounds, constraints=cons)
-        return result.x
+        return np.asarray(result.x)
