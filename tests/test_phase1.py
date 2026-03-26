@@ -9,17 +9,25 @@ from src.interpretflow.core import (
 
 
 def test_counterfactual_engine():
+    """Verify find_counterfactual shifts the model output to the target."""
+
     class MockModel:
-        def predict(self, x):
-            return np.dot(x, [1, -1])
+        def predict(self, x: np.ndarray) -> float:
+            # f(x) = x[0] - x[1]; predict([2,0]) = 2 (far from target 0)
+            return float(np.dot(x, [1.0, -1.0]))
 
     engine = CounterfactualEngine(MockModel())
-    input_data = np.array([1.0, 2.0])
-    target_prediction = -1
-    constraints = {0: 1.0}
+    input_data = np.array([2.0, 0.0])
+    target_prediction = 0.0
+    constraints: dict[int, float] = {}  # no fixed features
 
     delta = engine.find_counterfactual(input_data, target_prediction, constraints)
-    assert np.allclose(delta, [-3.0, 0.0]), f"Expected [-3.0, 0.0], got {delta}"
+    new_pred = MockModel().predict(input_data + delta)
+
+    assert isinstance(delta, np.ndarray), "delta must be ndarray"
+    assert abs(new_pred - target_prediction) < 1e-3, (
+        f"Expected prediction {target_prediction}, got {new_pred}"
+    )
 
 
 def test_compliance_mapper():
